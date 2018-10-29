@@ -1,22 +1,28 @@
-package com.arctouch.codechallenge.home
+package com.arctouch.codechallenge.modules.home
 
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.arctouch.codechallenge.R
-import com.arctouch.codechallenge.api.TmdbApi
-import com.arctouch.codechallenge.base.BaseActivity
+import com.arctouch.codechallenge.api.ServerApi
 import com.arctouch.codechallenge.data.Cache
+import com.arctouch.codechallenge.extensions.getViewModel
+import com.arctouch.codechallenge.modules.home.adapter.HomeAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.home_activity.*
+import kotlinx.android.synthetic.main.activity_home.*
 
-class HomeActivity : BaseActivity() {
+class HomeActivity : AppCompatActivity() {
+
+    var viewModel:HomeViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.home_activity)
+        setContentView(R.layout.activity_home)
 
-        api.upcomingMovies(TmdbApi.API_KEY, TmdbApi.DEFAULT_LANGUAGE, 1, TmdbApi.DEFAULT_REGION)
+        viewModel = getViewModel()
+
+        api.upcomingMovies(ServerApi.API_KEY, ServerApi.DEFAULT_LANGUAGE, 1, ServerApi.DEFAULT_REGION)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
