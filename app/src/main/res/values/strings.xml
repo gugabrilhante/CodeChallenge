@@ -2,4 +2,7 @@
     <string name="app_name">Code Challenge</string>
     <string name="movie_and_genres">%s - %s</string>
     <string name="and">and</string>
+    <string name="movie_title_transition">movieTitleTransition</string>
+    <string name="movie_poster_transition">moviePosterTransition</string>
+    <string name="gente_text_transition">genteTextTransition</string>
 </resources>

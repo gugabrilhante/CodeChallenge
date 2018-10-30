@@ -12,6 +12,7 @@ import com.arctouch.codechallenge.api.ServerInteractor
 import com.arctouch.codechallenge.data.Cache
 import com.arctouch.codechallenge.model.GenreResponse
 import com.arctouch.codechallenge.model.Movie
+import com.arctouch.codechallenge.model.MovieDetail
 import com.arctouch.codechallenge.model.MoviesResponse
 import com.arctouch.codechallenge.modules.detail.MovieDetailsActivity
 import com.arctouch.codechallenge.modules.home.enums.MovieSearchType
@@ -103,9 +104,9 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
 
     }
 
-    fun goToMovieDetails(activity: Activity, viewList: List<View>?, movie: Movie) {
+    fun goToMovieDetails(activity: Activity, viewList: List<View>?, movie: MovieDetail) {
         val intent = Intent(activity, MovieDetailsActivity::class.java)
-//        intent.putExtra("movie", movie)
+        intent.putExtra("movie", movie)
 
         if (viewList != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val pairs = viewList.map { androidx.core.util.Pair(it, it.transitionName) }.toTypedArray()

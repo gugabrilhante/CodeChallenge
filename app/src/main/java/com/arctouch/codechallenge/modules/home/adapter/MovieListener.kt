@@ -1,8 +1,8 @@
 package com.arctouch.codechallenge.modules.home.adapter
 
 import android.view.View
-import com.arctouch.codechallenge.model.Movie
+import com.arctouch.codechallenge.model.MovieDetail
 
 interface MovieListener {
-    fun onMovieClick(movie: Movie, viewList: List<View>)
+    fun onMovieClick(movie: MovieDetail, viewList: List<View>)
 }

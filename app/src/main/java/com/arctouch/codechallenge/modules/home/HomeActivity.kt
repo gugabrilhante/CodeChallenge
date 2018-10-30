@@ -12,6 +12,7 @@ import com.arctouch.codechallenge.extensions.getViewModel
 import com.arctouch.codechallenge.extensions.setBackgroundAnimated
 import com.arctouch.codechallenge.extensions.verticalLinearLayout
 import com.arctouch.codechallenge.model.Movie
+import com.arctouch.codechallenge.model.MovieDetail
 import com.arctouch.codechallenge.modules.home.adapter.HomeAdapter
 import com.arctouch.codechallenge.modules.home.adapter.MovieListener
 import kotlinx.android.synthetic.main.activity_home.*
@@ -113,7 +114,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
         })
     }
 
-    override fun onMovieClick(movie: Movie, viewList: List<View>) {
+    override fun onMovieClick(movie: MovieDetail, viewList: List<View>) {
         viewModel?.goToMovieDetails(this, viewList, movie)
     }
 }
