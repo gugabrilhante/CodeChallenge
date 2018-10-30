@@ -1,14 +1,19 @@
 package com.arctouch.codechallenge.modules.home.adapter
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.arctouch.codechallenge.model.Movie
 
 class HomeAdapter(val listener: MovieListener) : RecyclerView.Adapter<HomeViewHolder>() {
 
-    var movieList: List<Movie> = emptyList()
+    var movieList: MutableList<Movie> = arrayListOf()
     set(value) {
         field = value
+        notifyDataSetChanged()
+    }
+
+    fun addToList(list:List<Movie>){
+        movieList.addAll(list)
         notifyDataSetChanged()
     }
 

@@ -5,6 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import com.arctouch.codechallenge.R
 import com.arctouch.codechallenge.extensions.buildAlertDialog
 import com.arctouch.codechallenge.extensions.getViewModel
@@ -47,7 +48,14 @@ class HomeActivity : AppCompatActivity(), MovieListener {
     private fun setupViews() {
         recyclerView.adapter = adapter
         recyclerView.verticalLinearLayout(this)
-        
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if(!recyclerView.canScrollVertically(1)){
+                    viewModel?.getNextPage(searchView.query?.toString())
+                }
+            }
+        })
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
@@ -80,9 +88,13 @@ class HomeActivity : AppCompatActivity(), MovieListener {
     }
 
     private fun registerListMoviesObservable() {
-        viewModel?.movieLiveData?.observe(this, Observer { movieList: List<Movie>? ->
-            movieList?.let {
-                adapter.movieList = it
+        viewModel?.movieLiveData?.observe(this, Observer { pairListAndAdd: Pair<List<Movie>, Boolean> ->
+            pairListAndAdd.first.let { movieList:List<Movie> ->
+                if(pairListAndAdd.second){
+                    adapter.addToList(movieList)
+                }else{
+                    adapter.movieList = movieList.toMutableList()
+                }
             }
         })
     }

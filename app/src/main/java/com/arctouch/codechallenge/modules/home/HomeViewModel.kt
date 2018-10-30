@@ -23,7 +23,7 @@ import io.reactivex.schedulers.Schedulers
 
 class HomeViewModel(app: Application) : AndroidViewModel(app) {
 
-    var movieLiveData = MutableLiveData<List<Movie>>()
+    var movieLiveData = MutableLiveData<Pair<List<Movie>, Boolean>>()
     var isLoadingLiveData = MutableLiveData<Boolean>()
     var showErrorMessageLiveDatabase = MutableLiveData<String>()
 
@@ -33,23 +33,36 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
 
     fun getUpcomingMovieList() {
         isLoadingLiveData.value = true
+        if (lastSearchType != MovieSearchType.UPCOMING) currentPage = 1
         lastSearchType = MovieSearchType.SEARCH
 
-        val movieSingle = ServerInteractor().getUpcomingMovies(1)
+        val movieSingle = ServerInteractor().getUpcomingMovies(currentPage)
         val genreSingle = getGenreSingle()
         zipSingleMovieAndGenre(movieSingle, genreSingle)
     }
 
     fun searchMovieList(name: String) {
         isLoadingLiveData.value = true
+        if (lastSearchType != MovieSearchType.SEARCH) currentPage = 1
         lastSearchType = MovieSearchType.SEARCH
 
-        val movieSingle = ServerInteractor().searchMovie(name, 1)
+        val movieSingle = ServerInteractor().searchMovie(name, currentPage)
         val genreSingle = getGenreSingle()
         zipSingleMovieAndGenre(movieSingle, genreSingle)
     }
 
     fun updateMovieList(name: String?) {
+        currentPage = 1
+        when (lastSearchType) {
+            MovieSearchType.SEARCH -> name?.let {
+                if (it.isBlank() || it.isEmpty()) getUpcomingMovieList() else searchMovieList(name)
+            }
+            MovieSearchType.UPCOMING -> getUpcomingMovieList()
+        }
+    }
+
+    fun getNextPage(name: String?) {
+        currentPage++
         when (lastSearchType) {
             MovieSearchType.SEARCH -> name?.let {
                 if (it.isBlank() || it.isEmpty()) getUpcomingMovieList() else searchMovieList(name)
@@ -70,6 +83,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
     fun zipSingleMovieAndGenre(movieResponseSingle: Single<MoviesResponse>, GenreResponseSingle: Single<GenreResponse>) {
         DisposableManager.add(
                 Single.zip(movieResponseSingle, GenreResponseSingle, BiFunction<MoviesResponse, GenreResponse, List<Movie>> { movieResponse, genreResponse ->
+                    Cache.cacheGenres(genreResponse.genres)
                     val moviesWithGenres = movieResponse.results.map { movie ->
                         movie.copy(genres = genreResponse.genres.filter { movie.genreIds?.contains(it.id) == true })
                     }
@@ -78,10 +92,10 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe({
-                            movieLiveData.postValue(it.filterNotNull())
+                            movieLiveData.postValue(Pair(it.filterNotNull(), currentPage!=1L))
                             isLoadingLiveData.value = false
                         }, {
-                            movieLiveData.value = emptyList()
+                            movieLiveData.value = Pair(emptyList(), false)
                             isLoadingLiveData.value = false
                             showErrorMessageLiveDatabase.value = it.message
                         })
