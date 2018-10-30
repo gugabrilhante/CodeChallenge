@@ -1,6 +1,6 @@
 package com.arctouch.codechallenge.extensions
 
-import android.support.annotation.LayoutRes
+import androidx.annotation.LayoutRes
 import android.view.LayoutInflater
 import android.view.ViewGroup
 
