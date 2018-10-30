@@ -6,6 +6,7 @@ import io.reactivex.Single
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 class ServerInteractor {
 
@@ -22,12 +23,13 @@ class ServerInteractor {
         val clientBuilder = OkHttpClient.Builder()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl(URL)
-            .client(clientBuilder.build())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
+                .baseUrl(URL)
+                .client(clientBuilder.build())
+                .addConverterFactory(MoshiConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build()
         serverApi = retrofit
-            .create(ServerApi::class.java)
+                .create(ServerApi::class.java)
     }
 
     fun getUpcomingMovies(page: Long): Single<MoviesResponse> {

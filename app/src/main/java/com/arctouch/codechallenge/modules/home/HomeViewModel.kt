@@ -80,7 +80,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
 
     fun goToMovieDetails(activity: Activity, viewList: List<View>?, movie: Movie) {
         val intent = Intent(activity, MovieDetailsActivity::class.java)
-        intent.putExtra("movie", movie)
+//        intent.putExtra("movie", movie)
 
         if (viewList != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val pairs = viewList.map { androidx.core.util.Pair(it, it.transitionName) }.toTypedArray()

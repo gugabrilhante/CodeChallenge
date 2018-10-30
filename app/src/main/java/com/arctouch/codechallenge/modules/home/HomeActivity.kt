@@ -28,6 +28,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
         viewModel = getViewModel()
         setupViews()
         registerObservables()
+        viewModel?.getUpcomingMovieList()
         savedInstanceState?.let { savedInstance: Bundle ->
             recyclerView.layoutManager?.onRestoreInstanceState(savedInstance.getParcelable("LayoutManagerInstance"))
         }
