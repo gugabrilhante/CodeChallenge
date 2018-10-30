@@ -47,6 +47,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
     private fun setupViews() {
         recyclerView.adapter = adapter
         recyclerView.verticalLinearLayout(this)
+        
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {

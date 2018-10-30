@@ -9,9 +9,3 @@ fun RecyclerView.verticalLinearLayout(context: Context) {
     linearLayoutManager.orientation = RecyclerView.VERTICAL
     this.layoutManager = linearLayoutManager
 }
-
-fun RecyclerView.horizontalLinearLayout(context: Context) {
-    val linearLayoutManager = LinearLayoutManager(context)
-    linearLayoutManager.orientation = RecyclerView.HORIZONTAL
-    this.layoutManager = linearLayoutManager
-}

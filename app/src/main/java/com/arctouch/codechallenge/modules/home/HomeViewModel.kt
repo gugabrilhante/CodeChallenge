@@ -9,12 +9,16 @@ import androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.arctouch.codechallenge.api.ServerInteractor
+import com.arctouch.codechallenge.data.Cache
+import com.arctouch.codechallenge.model.GenreResponse
 import com.arctouch.codechallenge.model.Movie
 import com.arctouch.codechallenge.model.MoviesResponse
 import com.arctouch.codechallenge.modules.detail.MovieDetailsActivity
 import com.arctouch.codechallenge.modules.home.enums.MovieSearchType
 import com.arctouch.codechallenge.util.DisposableManager
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 
 class HomeViewModel(app: Application) : AndroidViewModel(app) {
@@ -23,50 +27,26 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
     var isLoadingLiveData = MutableLiveData<Boolean>()
     var showErrorMessageLiveDatabase = MutableLiveData<String>()
 
-    private var lastSearchType = MovieSearchType.UPCOMING
+    private var currentPage: Long = 1
 
+    private var lastSearchType = MovieSearchType.UPCOMING
 
     fun getUpcomingMovieList() {
         isLoadingLiveData.value = true
-        lastSearchType = MovieSearchType.UPCOMING
-        DisposableManager.add(
-                ServerInteractor().getUpcomingMovies(1)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ response: MoviesResponse ->
-                            response.results?.let {
-                                movieLiveData.postValue(it.filterNotNull())
-                                isLoadingLiveData.value = false
-                            }
+        lastSearchType = MovieSearchType.SEARCH
 
-                        }, {
-                            movieLiveData.value = emptyList()
-                            isLoadingLiveData.value = false
-                            showErrorMessageLiveDatabase.value = it.message
-                        })
-        )
+        val movieSingle = ServerInteractor().getUpcomingMovies(1)
+        val genreSingle = getGenreSingle()
+        zipSingleMovieAndGenre(movieSingle, genreSingle)
     }
 
     fun searchMovieList(name: String) {
         isLoadingLiveData.value = true
         lastSearchType = MovieSearchType.SEARCH
-        DisposableManager.add(
-                ServerInteractor().searchMovie(name, 1)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ response: MoviesResponse ->
 
-                            response.results?.let {
-                                movieLiveData.postValue(it.filterNotNull())
-                                isLoadingLiveData.value = false
-                            }
-
-                        }, {
-                            movieLiveData.value = emptyList()
-                            isLoadingLiveData.value = false
-                            showErrorMessageLiveDatabase.value = it.message
-                        })
-        )
+        val movieSingle = ServerInteractor().searchMovie(name, 1)
+        val genreSingle = getGenreSingle()
+        zipSingleMovieAndGenre(movieSingle, genreSingle)
     }
 
     fun updateMovieList(name: String?) {
@@ -78,6 +58,37 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun getGenreSingle(): Single<GenreResponse> {
+        val cache = Cache.genres
+        if (cache.isEmpty()) {
+            return ServerInteractor().getGenreList()
+        }
+        val genreResponse = GenreResponse(cache)
+        return Single.just(genreResponse)
+    }
+
+    fun zipSingleMovieAndGenre(movieResponseSingle: Single<MoviesResponse>, GenreResponseSingle: Single<GenreResponse>) {
+        DisposableManager.add(
+                Single.zip(movieResponseSingle, GenreResponseSingle, BiFunction<MoviesResponse, GenreResponse, List<Movie>> { movieResponse, genreResponse ->
+                    val moviesWithGenres = movieResponse.results.map { movie ->
+                        movie.copy(genres = genreResponse.genres.filter { movie.genreIds?.contains(it.id) == true })
+                    }
+                    return@BiFunction moviesWithGenres
+                })
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({
+                            movieLiveData.postValue(it.filterNotNull())
+                            isLoadingLiveData.value = false
+                        }, {
+                            movieLiveData.value = emptyList()
+                            isLoadingLiveData.value = false
+                            showErrorMessageLiveDatabase.value = it.message
+                        })
+        )
+
+    }
+
     fun goToMovieDetails(activity: Activity, viewList: List<View>?, movie: Movie) {
         val intent = Intent(activity, MovieDetailsActivity::class.java)
 //        intent.putExtra("movie", movie)
@@ -86,7 +97,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
             val pairs = viewList.map { androidx.core.util.Pair(it, it.transitionName) }.toTypedArray()
             val activityOptionsCompat = makeSceneTransitionAnimation(activity, *pairs)
             activity.startActivity(intent, activityOptionsCompat.toBundle())
-        }else{
+        } else {
             activity.startActivity(intent)
         }
     }

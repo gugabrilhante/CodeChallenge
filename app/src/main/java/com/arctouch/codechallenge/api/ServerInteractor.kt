@@ -1,5 +1,6 @@
 package com.arctouch.codechallenge.api
 
+import com.arctouch.codechallenge.model.GenreResponse
 import com.arctouch.codechallenge.model.Movie
 import com.arctouch.codechallenge.model.MoviesResponse
 import io.reactivex.Single
@@ -42,6 +43,10 @@ class ServerInteractor {
 
     fun getMovieInfo(movieId: Long): Single<Movie> {
         return this.serverApi.movieInfo(movieId, API_KEY, DEFAULT_LANGUAGE)
+    }
+
+    fun getGenreList(): Single<GenreResponse> {
+        return this.serverApi.genres(API_KEY, DEFAULT_LANGUAGE)
     }
 
 }
