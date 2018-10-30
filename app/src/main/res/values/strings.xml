@@ -5,4 +5,7 @@
     <string name="movie_title_transition">movieTitleTransition</string>
     <string name="movie_poster_transition">moviePosterTransition</string>
     <string name="gente_text_transition">genteTextTransition</string>
+    <string name="desculpa_nao_foi_encontrado_mais_nenhum_filme">Desculpa, nao foi encontrado mais nenhum filme</string>
+    <string name="ocorreu_algum_erro_ao_baixar_os_filmes_em_lancamentos">Ocorreu algum erro ao baixar os filmes em lançamentos.</string>
+    <string name="ocorreu_algum_erro_ao_buscar_pelo_filme">Ocorreu algum erro ao buscar pelo filme</string>
 </resources>

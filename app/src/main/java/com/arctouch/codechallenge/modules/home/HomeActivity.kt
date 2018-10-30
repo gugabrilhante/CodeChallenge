@@ -30,7 +30,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
         viewModel = getViewModel()
         setupViews()
         registerObservables()
-        viewModel?.getUpcomingMovieList()
+        viewModel?.getUpcomingMovieList(this)
         savedInstanceState?.let { savedInstance: Bundle ->
             recyclerView.layoutManager?.onRestoreInstanceState(savedInstance.getParcelable("LayoutManagerInstance"))
         }
@@ -53,7 +53,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 if(!recyclerView.canScrollVertically(1)){
-                    viewModel?.getNextPage(searchView.query?.toString())
+                    viewModel?.getNextPage(searchView.query?.toString(), this@HomeActivity)
                 }
             }
         })
@@ -64,7 +64,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
-                viewModel?.searchMovieList(query)
+                viewModel?.searchMovieList(query, this@HomeActivity)
                 return false
             }
 
@@ -77,7 +77,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
             false
         }
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel?.updateMovieList(searchView.query?.toString())
+            viewModel?.updateMovieList(searchView.query?.toString(), this@HomeActivity)
             swipeRefreshLayout.isRefreshing = true
         }
     }

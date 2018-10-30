@@ -2,12 +2,14 @@ package com.arctouch.codechallenge.modules.home
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.view.View
 import androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.arctouch.codechallenge.R
 import com.arctouch.codechallenge.data.MovieRequestManager
 import com.arctouch.codechallenge.model.Movie
 import com.arctouch.codechallenge.model.MovieDetail
@@ -27,27 +29,30 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
 
     private var lastSearchType = MovieSearchType.UPCOMING
 
-    fun getUpcomingMovieList() {
+    fun getUpcomingMovieList(context: Context) {
         isLoadingLiveData.value = true
         if (lastSearchType != MovieSearchType.UPCOMING) currentPage = 1
-        lastSearchType = MovieSearchType.SEARCH
+        lastSearchType = MovieSearchType.UPCOMING
 
         DisposableManager.add(
                 MovieRequestManager.getUpcomingMoviesWithGenre(currentPage)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe({
-                            movieLiveData.postValue(Pair(it.filterNotNull(), currentPage != 1L))
+                            if (it.isNotEmpty()) movieLiveData.postValue(Pair(it, currentPage != 1L))
+                            else {
+                                showErrorMessageLiveDatabase.value = context.getString(R.string.desculpa_nao_foi_encontrado_mais_nenhum_filme)
+                            }
                             isLoadingLiveData.value = false
                         }, {
                             movieLiveData.value = Pair(emptyList(), false)
                             isLoadingLiveData.value = false
-                            showErrorMessageLiveDatabase.value = it.message
+                            showErrorMessageLiveDatabase.value = context.getString(R.string.ocorreu_algum_erro_ao_baixar_os_filmes_em_lancamentos)
                         })
         )
     }
 
-    fun searchMovieList(name: String) {
+    fun searchMovieList(name: String, context: Context) {
         isLoadingLiveData.value = true
         if (lastSearchType != MovieSearchType.SEARCH) currentPage = 1
         lastSearchType = MovieSearchType.SEARCH
@@ -57,34 +62,34 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe({
-                            movieLiveData.postValue(Pair(it.filterNotNull(), currentPage != 1L))
+                            if (it.isNotEmpty()) movieLiveData.postValue(Pair(it, currentPage != 1L))
+                            else showErrorMessageLiveDatabase.value = context.getString(R.string.desculpa_nao_foi_encontrado_mais_nenhum_filme)
                             isLoadingLiveData.value = false
                         }, {
                             movieLiveData.value = Pair(emptyList(), false)
                             isLoadingLiveData.value = false
-                            showErrorMessageLiveDatabase.value = it.message
+                            showErrorMessageLiveDatabase.value = context.getString(R.string.ocorreu_algum_erro_ao_buscar_pelo_filme)
                         })
         )
     }
 
-    fun updateMovieList(name: String?) {
-        currentPage = 1
+    private fun refreshList(name: String?, context: Context) {
         when (lastSearchType) {
             MovieSearchType.SEARCH -> name?.let {
-                if (it.isBlank() || it.isEmpty()) getUpcomingMovieList() else searchMovieList(name)
+                if (it.isBlank() || it.isEmpty()) getUpcomingMovieList(context) else searchMovieList(name, context)
             }
-            MovieSearchType.UPCOMING -> getUpcomingMovieList()
+            MovieSearchType.UPCOMING -> getUpcomingMovieList(context)
         }
     }
 
-    fun getNextPage(name: String?) {
+    fun updateMovieList(name: String?, context: Context) {
+        currentPage = 1
+        refreshList(name, context)
+    }
+
+    fun getNextPage(name: String?, context: Context) {
         currentPage++
-        when (lastSearchType) {
-            MovieSearchType.SEARCH -> name?.let {
-                if (it.isBlank() || it.isEmpty()) getUpcomingMovieList() else searchMovieList(name)
-            }
-            MovieSearchType.UPCOMING -> getUpcomingMovieList()
-        }
+        refreshList(name, context)
     }
 
     fun goToMovieDetails(activity: Activity, viewList: List<View>?, movie: MovieDetail) {
