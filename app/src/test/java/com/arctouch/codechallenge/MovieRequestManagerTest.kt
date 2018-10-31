@@ -2,6 +2,7 @@ package com.arctouch.codechallenge
 
 import com.arctouch.codechallenge.data.MovieRequestManager
 import com.arctouch.codechallenge.model.GenreResponse
+import com.arctouch.codechallenge.model.Movie
 import com.arctouch.codechallenge.model.MoviesResponse
 import com.squareup.moshi.Moshi
 import io.reactivex.Single
@@ -24,7 +25,7 @@ class MovieRequestManagerTest {
     }
 
     @Test
-    fun zipMovieAndGenreResponse(){
+    fun zipMovieAndGenreResponse() {
 
         val movieResponseObservable = Single.just(mockMovieResponse())
         val genreResponseObservable = Single.just(mockGenreResponse())
@@ -35,20 +36,33 @@ class MovieRequestManagerTest {
     }
 
     @Test
-    fun testZipResult(){
+    fun testZipResult() {
 
         val mockMovieResponse = mockMovieResponse()
         val mockGenreResponse = mockGenreResponse()
 
-        val movieResponseObservable = Single.just(mockMovieResponse())
-        val genreResponseObservable = Single.just(mockGenreResponse())
+        val movieResponseSingle = Single.just(mockMovieResponse())
+        val genreResponseSingle = Single.just(mockGenreResponse())
 
         val zipResult = mockMovieResponse.results.map { movie ->
             movie.copy(genres = mockGenreResponse.genres.filter { movie.genreIds?.contains(it.id) == true })
         }
 
-        MovieRequestManager.zipSingleMovieAndGenre(movieResponseObservable, genreResponseObservable)
+        MovieRequestManager.zipSingleMovieAndGenre(movieResponseSingle, genreResponseSingle)
                 .test()
                 .assertResult(zipResult)
+                .assertValueCount(1)
+    }
+
+    @Test
+    fun testZipEmptyMovieList() {
+        val moviesResponse = MoviesResponse(1, emptyList<Movie>(), 1, 1)
+
+        val movieResponseSingle = Single.just(moviesResponse)
+        val genreResponseSingle = Single.just(mockGenreResponse())
+
+        MovieRequestManager.zipSingleMovieAndGenre(movieResponseSingle, genreResponseSingle)
+                .test()
+                .assertResult(emptyList<Movie>())
     }
 }
