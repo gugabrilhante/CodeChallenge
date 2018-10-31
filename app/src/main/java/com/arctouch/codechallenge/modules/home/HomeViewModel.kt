@@ -15,8 +15,8 @@ import com.arctouch.codechallenge.model.Movie
 import com.arctouch.codechallenge.model.MovieDetail
 import com.arctouch.codechallenge.modules.detail.MovieDetailsActivity
 import com.arctouch.codechallenge.modules.home.enums.MovieSearchType
-import com.arctouch.codechallenge.util.DisposableManager
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 class HomeViewModel(app: Application) : AndroidViewModel(app) {
@@ -29,12 +29,21 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
 
     private var lastSearchType = MovieSearchType.UPCOMING
 
+    private var compositeDisposable: CompositeDisposable = CompositeDisposable()
+
+    override fun onCleared() {
+        super.onCleared()
+        if(!compositeDisposable.isDisposed){
+            compositeDisposable.dispose()
+        }
+    }
+
     fun getUpcomingMovieList(context: Context) {
         isLoadingLiveData.value = true
         if (lastSearchType != MovieSearchType.UPCOMING) currentPage = 1
         lastSearchType = MovieSearchType.UPCOMING
 
-        DisposableManager.add(
+        compositeDisposable.add(
                 MovieRequestManager.getUpcomingMoviesWithGenre(currentPage)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
@@ -57,7 +66,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
         if (lastSearchType != MovieSearchType.SEARCH) currentPage = 1
         lastSearchType = MovieSearchType.SEARCH
 
-        DisposableManager.add(
+        compositeDisposable.add(
                 MovieRequestManager.searchMovieWithGenre(name, currentPage)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
