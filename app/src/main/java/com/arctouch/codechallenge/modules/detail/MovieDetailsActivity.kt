@@ -8,6 +8,7 @@ import com.arctouch.codechallenge.extensions.animateAlpha
 import com.arctouch.codechallenge.extensions.getViewModel
 import com.arctouch.codechallenge.util.MovieImageUrlBuilder
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.activity_movie_details.*
 
 class MovieDetailsActivity : AppCompatActivity() {
@@ -34,6 +35,7 @@ class MovieDetailsActivity : AppCompatActivity() {
             it.posterPath?.let { poster: String ->
                 Glide.with(this)
                         .load(MovieImageUrlBuilder.buildPosterUrl(poster))
+                        .apply(RequestOptions().placeholder(R.drawable.ic_image_placeholder))
                         .into(movieImageView)
             }
         })

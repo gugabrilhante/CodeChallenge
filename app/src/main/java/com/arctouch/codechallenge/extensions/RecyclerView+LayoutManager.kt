@@ -11,6 +11,7 @@ fun RecyclerView.verticalLinearLayout(context: Context) {
 }
 
 fun RecyclerView.reachedBottomLinearLayout(fistPosition: Int, lastPosition: Int): Boolean {
+    if(lastPosition<0)return false
     (this.layoutManager as? LinearLayoutManager)?.let {
         return (!this.canScrollVertically(1) &&
                 (it.findFirstCompletelyVisibleItemPosition() != fistPosition
