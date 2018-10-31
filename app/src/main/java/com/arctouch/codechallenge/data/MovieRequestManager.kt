@@ -27,13 +27,12 @@ object MovieRequestManager {
 
     private fun searchMovieByName(name:String, page:Long) = ServerInteractor().searchMovie(name, page)
 
-    private fun zipSingleMovieAndGenre(movieResponseSingle: Single<MoviesResponse>, GenreResponseSingle: Single<GenreResponse>): Single<List<Movie>> {
+    fun zipSingleMovieAndGenre(movieResponseSingle: Single<MoviesResponse>, GenreResponseSingle: Single<GenreResponse>): Single<List<Movie>> {
         return Single.zip(movieResponseSingle, GenreResponseSingle, BiFunction<MoviesResponse, GenreResponse, List<Movie>> { movieResponse, genreResponse ->
             Cache.cacheGenres(genreResponse.genres)
-            val moviesWithGenres = movieResponse.results.map { movie ->
+            return@BiFunction movieResponse.results.map { movie ->
                 movie.copy(genres = genreResponse.genres.filter { movie.genreIds?.contains(it.id) == true })
             }
-            return@BiFunction moviesWithGenres
         })
     }
 

@@ -1,7 +1,6 @@
 package com.arctouch.codechallenge.api
 
 import com.arctouch.codechallenge.model.GenreResponse
-import com.arctouch.codechallenge.model.Movie
 import com.arctouch.codechallenge.model.MoviesResponse
 import io.reactivex.Single
 import okhttp3.OkHttpClient
@@ -39,10 +38,6 @@ class ServerInteractor {
 
     fun searchMovie(name: String, page: Long): Single<MoviesResponse> {
         return this.serverApi.searchMovies(API_KEY, DEFAULT_LANGUAGE, name, page)
-    }
-
-    fun getMovieInfo(movieId: Long): Single<Movie> {
-        return this.serverApi.movieInfo(movieId, API_KEY, DEFAULT_LANGUAGE)
     }
 
     fun getGenreList(): Single<GenreResponse> {

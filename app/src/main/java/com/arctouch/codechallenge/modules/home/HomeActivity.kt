@@ -7,10 +7,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.arctouch.codechallenge.R
-import com.arctouch.codechallenge.extensions.buildAlertDialog
-import com.arctouch.codechallenge.extensions.getViewModel
-import com.arctouch.codechallenge.extensions.setBackgroundAnimated
-import com.arctouch.codechallenge.extensions.verticalLinearLayout
+import com.arctouch.codechallenge.extensions.*
 import com.arctouch.codechallenge.model.Movie
 import com.arctouch.codechallenge.model.MovieDetail
 import com.arctouch.codechallenge.modules.home.adapter.HomeAdapter
@@ -93,6 +90,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
             pairListAndAdd.first.let { movieList:List<Movie> ->
                 if(pairListAndAdd.second){
                     adapter.addToList(movieList)
+                    if(movieList.size>0)recyclerView.smoothScrollBy(0, 20)
                 }else{
                     adapter.movieList = movieList.toMutableList()
                 }
@@ -101,9 +99,12 @@ class HomeActivity : AppCompatActivity(), MovieListener {
     }
 
     private fun registerIsLoadingObservable() {
-        viewModel?.isLoadingLiveData?.observe(this, Observer { isLoading: Boolean? ->
-            isLoading?.let {
-                swipeRefreshLayout.isRefreshing = it
+        viewModel?.isLoadingLiveData?.observe(this, Observer { isLoading: Boolean ->
+            if(isLoading){
+                progressBar.visible()
+            }else{
+                progressBar.gone()
+                if(swipeRefreshLayout.isRefreshing)swipeRefreshLayout.isRefreshing = false
             }
         })
     }
