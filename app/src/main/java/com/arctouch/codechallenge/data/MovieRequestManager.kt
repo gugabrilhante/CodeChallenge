@@ -12,14 +12,14 @@ object MovieRequestManager {
     fun getUpcomingMoviesWithGenre(page:Long): Single<List<Movie>> {
         return zipSingleMovieAndGenre(
                 getUpcomingMovies(page),
-                GenreRequestManager.getGenreSingle()
+                GenreRequestManager.getGenreListSingle()
         )
     }
 
     fun searchMovieWithGenre(name:String, page:Long): Single<List<Movie>> {
         return zipSingleMovieAndGenre(
                 searchMovieByName(name, page),
-                GenreRequestManager.getGenreSingle()
+                GenreRequestManager.getGenreListSingle()
         )
     }
 
@@ -29,7 +29,7 @@ object MovieRequestManager {
 
     fun zipSingleMovieAndGenre(movieResponseSingle: Single<MoviesResponse>, GenreResponseSingle: Single<GenreResponse>): Single<List<Movie>> {
         return Single.zip(movieResponseSingle, GenreResponseSingle, BiFunction<MoviesResponse, GenreResponse, List<Movie>> { movieResponse, genreResponse ->
-            Cache.cacheGenres(genreResponse.genres)
+            GenreCache.cacheGenres(genreResponse.genres)
             return@BiFunction movieResponse.results.map { movie ->
                 movie.copy(genres = genreResponse.genres.filter { movie.genreIds?.contains(it.id) == true })
             }

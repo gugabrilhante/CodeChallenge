@@ -6,8 +6,8 @@ import io.reactivex.Single
 
 object GenreRequestManager {
 
-    fun getGenreSingle(): Single<GenreResponse> {
-        val cache = Cache.genres
+    fun getGenreListSingle(): Single<GenreResponse> {
+        val cache = GenreCache.genres
         if (cache.isEmpty()) {
             return ServerInteractor().getGenreList()
         }

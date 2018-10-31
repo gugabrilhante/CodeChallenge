@@ -1,5 +1,6 @@
 package com.arctouch.codechallenge.api
 
+import com.arctouch.codechallenge.constants.URLS_PATHS
 import com.arctouch.codechallenge.model.GenreResponse
 import com.arctouch.codechallenge.model.MoviesResponse
 import io.reactivex.Single
@@ -13,7 +14,6 @@ class ServerInteractor {
     private val serverApi: ServerApi
 
     companion object {
-        const val URL = "https://api.themoviedb.org/3/"
         const val API_KEY = "1f54bd990f1cdfb230adb312546d765d"
         const val DEFAULT_LANGUAGE = "pt-BR"
         const val DEFAULT_REGION = "BR"
@@ -23,7 +23,7 @@ class ServerInteractor {
         val clientBuilder = OkHttpClient.Builder()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl(URL)
+                .baseUrl(URLS_PATHS.BASE_URL)
                 .client(clientBuilder.build())
                 .addConverterFactory(MoshiConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
