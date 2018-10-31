@@ -6,6 +6,8 @@ import com.arctouch.codechallenge.model.Movie
 import com.arctouch.codechallenge.model.MoviesResponse
 import com.squareup.moshi.Moshi
 import io.reactivex.Single
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class MovieRequestManagerTest {
@@ -27,12 +29,35 @@ class MovieRequestManagerTest {
     @Test
     fun zipMovieAndGenreResponse() {
 
-        val movieResponseObservable = Single.just(mockMovieResponse())
-        val genreResponseObservable = Single.just(mockGenreResponse())
+        val movieResponseSingle = Single.just(mockMovieResponse())
+        val genreResponseSingle = Single.just(mockGenreResponse())
 
-        MovieRequestManager.zipSingleMovieAndGenre(movieResponseObservable, genreResponseObservable)
+        MovieRequestManager.zipSingleMovieAndGenre(movieResponseSingle, genreResponseSingle)
                 .test()
                 .assertOf { it.assertComplete() }
+    }
+
+    @Test
+    fun testZipGenreResults(){
+
+        val mockMovieResponse = mockMovieResponse()
+
+        val movieResponseSingle = Single.just(mockMovieResponse)
+        val genreResponseSingle = Single.just(mockGenreResponse())
+
+        MovieRequestManager.zipSingleMovieAndGenre(movieResponseSingle, genreResponseSingle).subscribe({
+            //check that genres are no null
+            assertNotNull(it[0].genres)
+            assertNotNull(it[1].genres)
+            assertNotNull(it[2].genres)
+
+            //test if the sizes are the same of mockMovieResponse
+            assertEquals(it[0].genres!!.size, 1)
+            assertEquals(it[1].genres!!.size, 2)
+            assertEquals(it[2].genres!!.size, 4)
+        },{
+
+        })
     }
 
     @Test
