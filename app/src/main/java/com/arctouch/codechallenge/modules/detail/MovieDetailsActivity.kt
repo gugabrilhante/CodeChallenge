@@ -44,7 +44,7 @@ class MovieDetailsActivity : AppCompatActivity() {
         showOverViewA()
     }
 
-    private fun showOverViewA(){
+    private fun showOverViewA() {
         overviewTextView.animateAlpha(1f, 250)
     }
 }

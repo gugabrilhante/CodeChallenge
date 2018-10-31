@@ -33,7 +33,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
 
     override fun onCleared() {
         super.onCleared()
-        if(!compositeDisposable.isDisposed){
+        if (!compositeDisposable.isDisposed) {
             compositeDisposable.dispose()
         }
     }
@@ -113,5 +113,4 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
             activity.startActivity(intent)
         }
     }
-
 }

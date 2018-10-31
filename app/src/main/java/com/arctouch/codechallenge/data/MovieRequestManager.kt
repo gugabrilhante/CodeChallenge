@@ -9,23 +9,23 @@ import io.reactivex.functions.BiFunction
 
 object MovieRequestManager {
 
-    fun getUpcomingMoviesWithGenre(page:Long): Single<List<Movie>> {
+    fun getUpcomingMoviesWithGenre(page: Long): Single<List<Movie>> {
         return zipSingleMovieAndGenre(
                 getUpcomingMovies(page),
                 GenreRequestManager.getGenreListSingle()
         )
     }
 
-    fun searchMovieWithGenre(name:String, page:Long): Single<List<Movie>> {
+    fun searchMovieWithGenre(name: String, page: Long): Single<List<Movie>> {
         return zipSingleMovieAndGenre(
                 searchMovieByName(name, page),
                 GenreRequestManager.getGenreListSingle()
         )
     }
 
-    private fun getUpcomingMovies(page:Long) = ServerInteractor().getUpcomingMovies(page)
+    private fun getUpcomingMovies(page: Long) = ServerInteractor().getUpcomingMovies(page)
 
-    private fun searchMovieByName(name:String, page:Long) = ServerInteractor().searchMovie(name, page)
+    private fun searchMovieByName(name: String, page: Long) = ServerInteractor().searchMovie(name, page)
 
     fun zipSingleMovieAndGenre(movieResponseSingle: Single<MoviesResponse>, GenreResponseSingle: Single<GenreResponse>): Single<List<Movie>> {
         return Single.zip(movieResponseSingle, GenreResponseSingle, BiFunction<MoviesResponse, GenreResponse, List<Movie>> { movieResponse, genreResponse ->

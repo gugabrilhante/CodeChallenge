@@ -7,12 +7,12 @@ import com.arctouch.codechallenge.model.Movie
 class HomeAdapter(val listener: MovieListener) : RecyclerView.Adapter<HomeViewHolder>() {
 
     var movieList: MutableList<Movie> = arrayListOf()
-    set(value) {
-        field = value
-        notifyDataSetChanged()
-    }
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
-    fun addToList(list:List<Movie>){
+    fun addToList(list: List<Movie>) {
         movieList.addAll(list)
         notifyDataSetChanged()
     }

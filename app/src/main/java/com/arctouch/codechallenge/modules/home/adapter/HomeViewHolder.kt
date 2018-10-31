@@ -12,7 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.item_movie.view.*
 
 class HomeViewHolder(val parent: ViewGroup, val listener: MovieListener) :
-        RecyclerView.ViewHolder(parent.inflate(R.layout.item_movie, false))  {
+        RecyclerView.ViewHolder(parent.inflate(R.layout.item_movie, false)) {
 
     fun bind(movie: Movie) {
         val genreText = movie.genres?.joinToString(separator = ", ") { it.name }

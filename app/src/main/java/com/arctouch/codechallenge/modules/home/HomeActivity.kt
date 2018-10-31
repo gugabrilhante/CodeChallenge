@@ -50,7 +50,7 @@ class HomeActivity : AppCompatActivity(), MovieListener {
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (recyclerView.reachedBottomLinearLayout(0, adapter.movieList.size-1)) {
+                if (recyclerView.reachedBottomLinearLayout(0, adapter.movieList.size - 1)) {
                     if (adapter.movieList.size > 0) recyclerView.smoothScrollBy(0, -10)
                     if (!progressBar.isVisible()) viewModel?.getNextPage(searchView.query?.toString(), this@HomeActivity)
                 }
