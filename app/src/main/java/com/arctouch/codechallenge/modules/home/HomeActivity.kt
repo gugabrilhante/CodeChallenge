@@ -27,20 +27,21 @@ class HomeActivity : AppCompatActivity(), MovieListener {
         viewModel = getViewModel()
         setupViews()
         registerObservables()
-        viewModel?.getUpcomingMovieList(this)
         savedInstanceState?.let { savedInstance: Bundle ->
             recyclerView.layoutManager?.onRestoreInstanceState(savedInstance.getParcelable("LayoutManagerInstance"))
+        } ?: run {
+            viewModel?.getUpcomingMovieList(this)
         }
     }
 
     public override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
         recyclerView.layoutManager?.let {
             savedInstanceState.putParcelable(
                     "LayoutManagerInstance",
                     it.onSaveInstanceState()
             )
         }
-        super.onSaveInstanceState(savedInstanceState)
     }
 
     private fun setupViews() {
@@ -49,8 +50,9 @@ class HomeActivity : AppCompatActivity(), MovieListener {
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if(!recyclerView.canScrollVertically(1)){
-                    viewModel?.getNextPage(searchView.query?.toString(), this@HomeActivity)
+                if (recyclerView.reachedBottomLinearLayout(0, adapter.movieList.size-1)) {
+                    if (adapter.movieList.size > 0) recyclerView.smoothScrollBy(0, -10)
+                    if (!progressBar.isVisible()) viewModel?.getNextPage(searchView.query?.toString(), this@HomeActivity)
                 }
             }
         })
@@ -87,11 +89,11 @@ class HomeActivity : AppCompatActivity(), MovieListener {
 
     private fun registerListMoviesObservable() {
         viewModel?.movieLiveData?.observe(this, Observer { pairListAndAdd: Pair<List<Movie>, Boolean> ->
-            pairListAndAdd.first.let { movieList:List<Movie> ->
-                if(pairListAndAdd.second){
+            pairListAndAdd.first.let { movieList: List<Movie> ->
+                if (pairListAndAdd.second) {
                     adapter.addToList(movieList)
-                    if(movieList.size>0)recyclerView.smoothScrollBy(0, 20)
-                }else{
+                    if (movieList.size > 0) recyclerView.smoothScrollBy(0, 30)
+                } else {
                     adapter.movieList = movieList.toMutableList()
                 }
             }
@@ -100,11 +102,11 @@ class HomeActivity : AppCompatActivity(), MovieListener {
 
     private fun registerIsLoadingObservable() {
         viewModel?.isLoadingLiveData?.observe(this, Observer { isLoading: Boolean ->
-            if(isLoading){
+            if (isLoading) {
                 progressBar.visible()
-            }else{
+            } else {
                 progressBar.gone()
-                if(swipeRefreshLayout.isRefreshing)swipeRefreshLayout.isRefreshing = false
+                if (swipeRefreshLayout.isRefreshing) swipeRefreshLayout.isRefreshing = false
             }
         })
     }

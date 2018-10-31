@@ -21,5 +21,7 @@ class HomeAdapter(val listener: MovieListener) : RecyclerView.Adapter<HomeViewHo
 
     override fun getItemCount() = movieList.size
 
-    override fun onBindViewHolder(holder: HomeViewHolder, position: Int) = holder.bind(movieList[position])
+    override fun onBindViewHolder(holder: HomeViewHolder, position: Int) {
+        holder.bind(movieList[position])
+    }
 }
